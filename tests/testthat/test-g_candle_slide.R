@@ -6,13 +6,10 @@ test_that("g_candle_slide returns a ggplot with four stacked panels", {
   # cowplot draws each stacked sub-plot (price / volume / RSI / MACD) as a
   # `GeomDrawGrob` child of the combined panel gTree, so exactly four appear.
   gt <- ggplot2::ggplot_gtable(ggplot2::ggplot_build(p))
-  count_draw <- function(g) {
-    n <- if (inherits(g, "GeomDrawGrob")) 1L else 0L
-    kids <- if (inherits(g, "gtable")) g$grobs else g$children
-    if (!is.null(kids)) for (ch in kids) n <- n + count_draw(ch)
-    n
-  }
-  expect_equal(count_draw(gt), 4L)
+  gname <- function(g) if (is.null(g$name)) "" else g$name
+  panel <- gt$grobs[[which(vapply(gt$grobs, function(g) grepl("^panel-1", gname(g)), logical(1L)))]]
+  n_sub <- sum(vapply(panel$children, function(ch) grepl("^GeomDrawGrob", gname(ch)), logical(1L)))
+  expect_equal(n_sub, 4L)
 })
 
 test_that("g_candle_slide accepts renamed columns", {

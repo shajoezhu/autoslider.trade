@@ -13,7 +13,7 @@
 #'   scale_linetype_manual theme theme_minimal
 #' @importFrom rlistings as_listing
 #' @importFrom rtables analyze basic_table build_table rcell split_cols_by
-#' @importFrom stats ave
+#' @importFrom stats ave setNames
 NULL
 
 # `autoslider.trade` is a downstream package of `autoslider.core`: the outputs

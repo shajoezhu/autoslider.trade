@@ -40,4 +40,7 @@ importFrom(rtables,
   rcell,
   split_cols_by
 )
-importFrom(stats,ave)
+importFrom(stats,
+  ave,
+  setNames
+)
