@@ -18,3 +18,7 @@
 * Added the `nz_tickers` dataset (the 168-instrument NZX universe copied from
   `homepage-stock`) and a synthetic `eg_ohlc` OHLCV dataset for the candlestick
   figure and its tests.
+
+* Added an MCP server (`inst/mcp/autoslider_trade_mcp_server.R`) that exposes
+  the trade outputs as MCP tools for interactive deck building; registered as
+  `autoslider_trade` in `~/.codebuddy/.mcp.json`.
