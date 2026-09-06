@@ -104,10 +104,6 @@ g_candle_slide <- function(prices,
     geom_line(aes(y = UP), colour = "steelblue", linetype = "dotted", na.rm = TRUE) +
     geom_line(aes(y = MID), colour = "steelblue", linetype = "solid", na.rm = TRUE) +
     geom_line(aes(y = DN), colour = "steelblue", linetype = "dotted", na.rm = TRUE) +
-    { if (!is.null(ma_df)) geom_line(
-      aes(y = y, linetype = series), data = ma_df, colour = "grey30", na.rm = TRUE
-    ) } +
-    { if (!is.null(ma_df)) scale_linetype_manual(values = ma_lty) } +
     scale_colour_manual(values = c(up = up_col, down = down_col), guide = "none") +
     scale_fill_manual(values = c(up = up_col, down = down_col)) +
     annotate(
@@ -121,6 +117,11 @@ g_candle_slide <- function(prices,
     labs(title = title, y = "Price") +
     theme_minimal() +
     no_x
+  if (!is.null(ma_df)) {
+    p_price <- p_price +
+      geom_line(aes(y = y, linetype = series), data = ma_df, colour = "grey30", na.rm = TRUE) +
+      scale_linetype_manual(values = ma_lty)
+  }
 
   p_vol <- ggplot(d, aes(x = DATE)) +
     geom_col(aes(y = VOLUME, fill = DIR)) +

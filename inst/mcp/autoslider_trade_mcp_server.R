@@ -37,10 +37,12 @@ suppressPackageStartupMessages({
 
 # ---- helpers ----------------------------------------------------------------
 stop_if <- function(cond, msg) if (cond) stop(msg, call. = FALSE)
-require_outputs <- function() stop_if(
-  is.null(.state$outputs) || length(.state$outputs) == 0L,
-  "No outputs built yet. Call a render_* tool (e.g. candle_chart) first."
-)
+require_outputs <- function() {
+  stop_if(
+    is.null(.state$outputs) || length(.state$outputs) == 0L,
+    "No outputs built yet. Call a render_* tool (e.g. candle_chart) first."
+  )
+}
 
 # Resolve a dataset: "example" pulls a bundled dataset from this package,
 # otherwise read an .rds file from disk.
