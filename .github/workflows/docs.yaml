@@ -36,6 +36,10 @@ on:
 jobs:
   docs:
     name: Pkgdown Docs 📚
+    # Required so the deploy can push to the gh-pages branch; the default
+    # GITHUB_TOKEN is read-only and would make the deploy fail.
+    permissions:
+      contents: write
     uses: insightsengineering/r.pkg.template/.github/workflows/pkgdown.yaml@main
     secrets:
       REPO_GITHUB_TOKEN: ${{ secrets.REPO_GITHUB_TOKEN }}

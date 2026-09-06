@@ -58,8 +58,19 @@ pptx_to_pdf <- function(path, output_dir = NULL) {
 #'
 #' @return A `character` scalar, `"libreoffice"` or `"powerpoint"`
 #' @noRd
+# Is LibreOffice actually usable? `soffice` can be present in PATH but fail to
+# launch (e.g. a broken stub), in which case we must fall back to PowerPoint
+# rather than erroring deep inside system2().
+soffice_available <- function() {
+  nzchar(Sys.which("soffice")) &&
+    is.numeric(r <- tryCatch(
+      system2("soffice", "--version", stdout = FALSE, stderr = FALSE),
+      error = function(e) -1L
+    )) && r == 0L
+}
+
 pptx_backend <- function() {
-  if (nzchar(Sys.which("soffice"))) {
+  if (soffice_available()) {
     return("libreoffice")
   }
   if (!is.null(powershell_exe())) {

@@ -1,8 +1,10 @@
 skip_if_no_converter <- function() {
-  have <- nzchar(Sys.which("soffice")) ||
-    !is.null(autoslider.trade:::powershell_exe())
-  if (!have) {
-    testthat::skip("No PDF converter available (no soffice, no PowerShell)")
+  # Key off a *functional* backend, not mere presence: `soffice` can sit in PATH
+  # but be unrunnable, in which case pptx_backend() falls back to PowerPoint.
+  # If no backend can be used at all, skip rather than fail.
+  be <- tryCatch(pptx_backend(), error = function(e) NULL)
+  if (is.null(be)) {
+    testthat::skip("No functional PDF converter available (no working soffice, no PowerShell/PowerPoint)")
   }
 }
 
