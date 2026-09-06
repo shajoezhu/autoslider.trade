@@ -19,9 +19,11 @@ applying saved filter expressions. `autoslider.trade` assumes it is handed data
 that has already been reduced to the instruments of interest.
 
 In scope: building tables, listings and figures from trading data, and the
-trading code convention that joins them.
+trading code convention that joins them. Computing a small set of technical
+indicators (moving averages, Bollinger Bands, RSI, MACD) **for display inside
+figures** is in scope, and the helpers live in `R/indicators.R`.
 
-Out of scope: fetching market data, computing indicators, backtesting, and
+Out of scope: fetching market data, backtesting and signal generation, and
 selecting which instruments are in scope. Those belong to `filters.trade` or to
 data providers.
 
@@ -52,6 +54,10 @@ data providers.
   so that instruments with different price levels can be compared, controlled
   by an argument.
 - Column names **shall** be configurable through arguments.
+- The package **shall** provide a candlestick figure (`g_candle_slide()`) that
+  overlays Bollinger Bands and moving averages on the price panel and adds
+  volume, RSI and MACD panels, ported and enriched from the user's
+  `homepage-stock` charts.
 
 ### Listings
 

@@ -8,7 +8,9 @@
 
 #' @importFrom assertthat assert_that has_name is.count is.flag is.string
 #' @importFrom formatters var_labels
-#' @importFrom ggplot2 aes geom_line ggplot labs theme_minimal
+#' @importFrom ggplot2 aes annotate element_blank geom_col geom_hline geom_line
+#'   geom_rect geom_segment ggplot labs scale_colour_manual scale_fill_manual
+#'   scale_linetype_manual theme theme_minimal
 #' @importFrom rlistings as_listing
 #' @importFrom rtables analyze basic_table build_table rcell split_cols_by
 #' @importFrom stats ave
@@ -22,4 +24,8 @@ NULL
 autoslider.core::generate_slides
 
 # Column names used inside ggplot2::aes(), which cannot be resolved statically.
-utils::globalVariables(c("SYMBOL", "DATE", "VALUE"))
+utils::globalVariables(c(
+  "SYMBOL", "DATE", "VALUE",
+  "OPEN", "HIGH", "LOW", "CLOSE", "VOLUME", "DIR",
+  "UP", "MID", "DN", "VMA", "RSI", "DIF", "DEA", "HIST", "y", "series"
+))
