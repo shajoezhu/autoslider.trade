@@ -62,7 +62,7 @@ fn_list_outputs <- function() {
     "  trades         - l_trades_slide(): trade listing",
     "  equity_curve   - g_equity_slide(): rebased price curve",
     "",
-    "Then call generate_slides(outfile=...) to assemble a .pptx,",
+    "Then call trade_generate_slides(outfile=...) to assemble a .pptx,",
     "and optionally pptx_to_pdf(path=...) to convert it.",
     sep = "\n"
   )
@@ -73,25 +73,25 @@ fn_candle <- function(symbol, data_path) {
   if (nzchar(symbol)) df <- df[df$SYMBOL == symbol, ]
   stop_if(nrow(df) == 0L, sprintf("No rows for symbol '%s' in the data.", symbol))
   .state$outputs[["candle"]] <- g_candle_slide(df)
-  sprintf("Candlestick chart built (%d rows). Call generate_slides to render.", nrow(df))
+  sprintf("Candlestick chart built (%d rows). Call trade_generate_slides to render.", nrow(df))
 }
 
 fn_performance <- function(data_path) {
   df <- load_df(data_path, "eg_prices")
   .state$outputs[["performance"]] <- t_performance_slide(df)
-  sprintf("Performance table built. Call generate_slides to render.")
+  sprintf("Performance table built. Call trade_generate_slides to render.")
 }
 
 fn_trades <- function(data_path) {
   df <- load_df(data_path, "eg_trades")
   .state$outputs[["trades"]] <- l_trades_slide(df)
-  sprintf("Trade listing built. Call generate_slides to render.")
+  sprintf("Trade listing built. Call trade_generate_slides to render.")
 }
 
 fn_equity <- function(data_path) {
   df <- load_df(data_path, "eg_prices")
   .state$outputs[["equity"]] <- g_equity_slide(df)
-  sprintf("Equity curve built. Call generate_slides to render.")
+  sprintf("Equity curve built. Call trade_generate_slides to render.")
 }
 
 fn_generate_slides <- function(outfile, output_name) {
@@ -197,7 +197,7 @@ tools <- list(
 
   tool(
     fun = fn_generate_slides,
-    name = "generate_slides",
+    name = "trade_generate_slides",
     description = paste(
       "Render one built output to a PowerPoint (.pptx) file and return its",
       "absolute path. Call a render_* tool first, then name the output to",
@@ -229,7 +229,7 @@ tools <- list(
 
   tool(
     fun = fn_reset,
-    name = "reset",
+    name = "trade_reset",
     description = "Clear the built outputs so a fresh deck can be assembled.",
     arguments = list()
   )
