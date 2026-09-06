@@ -6,3 +6,6 @@
   plus the example datasets `eg_prices` and `eg_trades`.
 
 * Re-exported `generate_slides()` from `autoslider.core`.
+
+* Added `pptx_to_pdf()` to render slide decks as PDF, using LibreOffice when
+  available or Microsoft PowerPoint through Windows COM automation from WSL.

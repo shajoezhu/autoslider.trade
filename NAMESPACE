@@ -3,6 +3,7 @@
 export(g_equity_slide)
 export(generate_slides)
 export(l_trades_slide)
+export(pptx_to_pdf)
 export(t_performance_slide)
 importFrom(assertthat,
   assert_that,
