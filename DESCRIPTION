@@ -1,6 +1,6 @@
 Package: autoslider.trade
 Title: Slide Automation for Trading Tables, Listings and Figures
-Version: 0.0.0.9000
+Version: 0.0.1
 Authors@R: person("Joe", "Zhu", , "sha.joe.zhu@gmail.com", role = c("aut", "cre"))
 Description: A downstream package of `autoslider.core` that produces tables,
     listings and figures for finance trading, in the same style as
