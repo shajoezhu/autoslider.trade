@@ -22,6 +22,9 @@ jobs:
   r-cmd:
     name: R CMD Check 🧬
     uses: insightsengineering/r.pkg.template/.github/workflows/build-check-install.yaml@main
+    permissions:
+      checks: write
+      contents: read
     secrets:
       REPO_GITHUB_TOKEN: ${{ secrets.REPO_GITHUB_TOKEN }}
     with:
@@ -40,6 +43,9 @@ jobs:
   r-cmd-non-cran:
     name: R CMD Check (non-CRAN) 🧬
     uses: insightsengineering/r.pkg.template/.github/workflows/build-check-install.yaml@main
+    permissions:
+      checks: write
+      contents: read
     secrets:
       REPO_GITHUB_TOKEN: ${{ secrets.REPO_GITHUB_TOKEN }}
     with:
