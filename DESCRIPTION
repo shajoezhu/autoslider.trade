@@ -1,6 +1,6 @@
 Package: autoslider.trade
 Title: Slide Automation for Trading Tables, Listings and Figures
-Version: 0.0.0.9001
+Version: 0.0.0.9002
 Authors@R: 
     person("Joe", "Zhu", , "sha.joe.zhu@gmail.com", role = c("aut", "cre"))
 Description: A downstream package of `autoslider.core` that produces
@@ -22,11 +22,11 @@ Imports:
     rlistings,
     rtables,
     stats
-Remotes:
-    pharmaverse/autoslider.core
 Suggests:
     roxygen2 (>= 7.0.0),
     testthat (>= 3.0.0)
+Remotes:
+    pharmaverse/autoslider.core
 Config/roxygen2/version: 8.1.0
 Config/testthat/edition: 3
 Encoding: UTF-8

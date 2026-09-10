@@ -1,4 +1,4 @@
-# autoslider.trade 0.0.0.9001
+# autoslider.trade 0.0.0.9002
 
 * Initial scaffold of the package.
 
