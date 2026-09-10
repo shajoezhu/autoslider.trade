@@ -22,11 +22,15 @@ jobs:
   r-cmd:
     name: R CMD Check 🧬
     uses: insightsengineering/r.pkg.template/.github/workflows/build-check-install.yaml@main
+    permissions:
+      checks: write
+      contents: read
     secrets:
       REPO_GITHUB_TOKEN: ${{ secrets.REPO_GITHUB_TOKEN }}
     with:
       deps-installation-method: setup-r-dependencies
       enforce-note-blocklist: true
+      junit-xml-comparison: false
       note-blocklist: |
         checking dependencies in R code .* NOTE
         checking R code for possible problems .* NOTE
@@ -39,6 +43,9 @@ jobs:
   r-cmd-non-cran:
     name: R CMD Check (non-CRAN) 🧬
     uses: insightsengineering/r.pkg.template/.github/workflows/build-check-install.yaml@main
+    permissions:
+      checks: write
+      contents: read
     secrets:
       REPO_GITHUB_TOKEN: ${{ secrets.REPO_GITHUB_TOKEN }}
     with:
@@ -47,6 +54,7 @@ jobs:
         NOT_CRAN=true
       enforce-note-blocklist: true
       concurrency-group: non-cran
+      junit-xml-comparison: false
       note-blocklist: |
         checking dependencies in R code .* NOTE
         checking R code for possible problems .* NOTE
