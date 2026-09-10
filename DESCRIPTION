@@ -1,10 +1,9 @@
 Package: autoslider.trade
 Title: Slide Automation for Trading Tables, Listings and Figures
-Version: 0.0.0.9004
-Authors@R: 
-    person("Joe", "Zhu", , "sha.joe.zhu@gmail.com", role = c("aut", "cre"))
-Description: A downstream package of `autoslider.core` that produces
-    tables, listings and figures for finance trading, in the same style as
+Version: 0.0.1
+Authors@R: person("Joe", "Zhu", , "sha.joe.zhu@gmail.com", role = c("aut", "cre"))
+Description: A downstream package of `autoslider.core` that produces tables,
+    listings and figures for finance trading, in the same style as
     `autoslider`. Where `autoslider.core` automates clinical study outputs
     from CDISC data, this package automates trading outputs from price and
     trade data: performance tables, equity curves and trade listings. The
@@ -25,8 +24,6 @@ Imports:
 Suggests:
     roxygen2 (>= 7.0.0),
     testthat (>= 3.0.0)
-Remotes:
-    pharmaverse/autoslider.core
 Config/roxygen2/version: 8.1.0
 Config/testthat/edition: 3
 Encoding: UTF-8
