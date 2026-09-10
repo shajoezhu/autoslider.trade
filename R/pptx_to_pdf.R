@@ -69,11 +69,35 @@ soffice_available <- function() {
     )) && r == 0L
 }
 
+powerpoint_available <- function() {
+  ps <- powershell_exe()
+  if (is.null(ps)) {
+    return(FALSE)
+  }
+  # Verify that the PowerPoint COM class is actually registered. On CI machines
+  # PowerShell may be present but Microsoft Office is not installed, so
+  # New-Object -ComObject PowerPoint.Application would fail with REGDB_E_CLASSNOTREG.
+  status <- tryCatch(
+    system2(
+      ps,
+      c(
+        "-NoProfile", "-NonInteractive", "-ExecutionPolicy", "Bypass",
+        "-Command",
+        "if ([System.Type]::GetTypeFromProgID('PowerPoint.Application')) { exit 0 } else { exit 1 }"
+      ),
+      stdout = FALSE,
+      stderr = FALSE
+    ),
+    error = function(e) -1L
+  )
+  is.numeric(status) && status == 0L
+}
+
 pptx_backend <- function() {
   if (soffice_available()) {
     return("libreoffice")
   }
-  if (!is.null(powershell_exe())) {
+  if (powerpoint_available()) {
     return("powerpoint")
   }
   stop(
