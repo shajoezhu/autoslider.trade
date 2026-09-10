@@ -1,7 +1,7 @@
 # autoslider.trade
 
 Trading tables, listings and figures, downstream of
-[`autoslider.core`](https://github.com/insightsengineering/autoslider). It
+[`autoslider.core`](https://github.com/pharmaverse/autoslider.core). It
 produces slide-ready outputs for finance trading in the same style as
 `autoslider`, and follows the same naming convention:
 
@@ -10,7 +10,7 @@ produces slide-ready outputs for finance trading in the same style as
 - `g_*_slide()` — figures (`ggplot2`)
 
 The instruments an output is computed on are selected by the sibling package
-[`filters.trade`](https://github.com/joezhu/filters.trade); this package just
+[`filters.trade`](https://github.com/shajoezhu/filters.trade); this package just
 renders them.
 
 ## Installation

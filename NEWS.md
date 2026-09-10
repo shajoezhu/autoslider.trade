@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 # autoslider.trade 0.0.1
+=======
+# autoslider.trade 0.0.0.9003
+>>>>>>> main
 
 * Initial scaffold of the package.
 

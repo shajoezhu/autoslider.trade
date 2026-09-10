@@ -7,7 +7,9 @@ Description: A downstream package of `autoslider.core` that produces tables,
     `autoslider`. Where `autoslider.core` automates clinical study outputs
     from CDISC data, this package automates trading outputs from price and
     trade data: performance tables, equity curves and trade listings. The
-    instruments these outputs are computed on are selected by `filters.trade`.
+    instruments these outputs are computed on are selected by
+    `filters.trade`.
+License: Apache License (>= 2.0)
 Depends:
     R (>= 4.1.0)
 Imports:
@@ -22,9 +24,8 @@ Imports:
 Suggests:
     roxygen2 (>= 7.0.0),
     testthat (>= 3.0.0)
-Encoding: UTF-8
-Config/testthat/edition: 3
-Roxygen: list(markdown = TRUE)
-License: Apache License (>= 2.0)
 Config/roxygen2/version: 8.1.0
+Config/testthat/edition: 3
+Encoding: UTF-8
 LazyData: true
+Roxygen: list(markdown = TRUE)
