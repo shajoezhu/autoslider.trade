@@ -135,6 +135,41 @@ generator rather than on the data alone.
 - Changing the trading code **shall** be sufficient to report on a different
   instrument.
 
+### Beyond price history
+
+- The package **shall** provide a figure (`g_range_slide()`) placing the price
+  inside the range it has traded over a trailing window, since the same price
+  near a 52-week high and near a 52-week low are different states.
+- The package **shall** provide a figure (`g_vol_term_slide()`) giving realized
+  volatility over several trailing windows at once, which is the shape an
+  implied volatility term structure is quoted in.
+- The package **shall** provide option pricing with implied volatility and the
+  Greeks (`t_option_slide()`), and a figure comparing implied against realized
+  volatility (`g_vol_premium_slide()`). Both **shall** take their option quotes
+  as an argument: quotes are not fetched, and an output that needs them **shall**
+  say so rather than substitute something.
+- The package **should** provide a trend table for fundamentals or valuation
+  metrics (`t_fundamentals_slide()`) that renders what it is given, deriving
+  nothing beyond the change from first period to last.
+- Outputs needing data the package does not hold **shall** fail loudly on a
+  missing column rather than render an empty shell.
+
+### Figures on a slide
+
+- A report **shall** write its figures as rasters rather than as the vector
+  graphics `generate_slides()` produces, because those are drawn with
+  `grDevices::svg()`, whose cairo backend emits text as font glyphs that
+  PowerPoint does not draw: a figure whose labels cannot be read has no value.
+- Writing a raster figure **shall** preserve the slide's layout, master and
+  title, and **shall** leave the surrounding slides where they are.
+- Rasterizing **should** be opt-out (`fig_dpi = NA`), for a deck that is meant to
+  stay vector.
+- Single `g_*_slide()` outputs handed to `generate_slides()` **will** keep the
+  vector form; only the report rasterizes, until `autoslider.core` renders figures
+  in a form PowerPoint can read.
+- `METHODS.md` **shall** record the formula behind every metric, its source, and
+  which external skills were adopted or dropped.
+
 ### Validation
 
 - Every output function **shall** verify that the required columns are present

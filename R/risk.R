@@ -135,6 +135,11 @@ var_param <- function(x, conf = 0.95) {
 #' present in the returns, since traded returns are fat-tailed. Reported the same
 #' way round as `var_hist()`, as a positive loss.
 #'
+#' The expansion has to be applied to the *lower*-tail quantile: fed the upper
+#' tail instead, a left-skewed series would come out with a *smaller* loss than
+#' the Gaussian one it is meant to correct. With skewness and excess kurtosis of
+#' zero it collapses to `var_param()`.
+#'
 #' @param x `numeric` returns
 #' @param conf `numeric` confidence level in (0, 1)
 #' @return `numeric` scalar
@@ -143,11 +148,11 @@ var_cf <- function(x, conf = 0.95) {
   if (length(x) < 4L) {
     return(NA_real_)
   }
-  z <- qnorm(conf)
+  z <- qnorm(1 - conf)
   s <- skew(x)
   k <- kurt(x)
   z_cf <- z + (z^2 - 1) * s / 6 + (z^3 - 3 * z) * k / 24 - (2 * z^3 - 5 * z) * s^2 / 36
-  z_cf * sd(x) - mean(x)
+  -(mean(x) + z_cf * sd(x))
 }
 
 #' Conditional Value at Risk (expected shortfall)

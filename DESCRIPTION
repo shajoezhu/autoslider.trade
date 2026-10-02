@@ -17,6 +17,7 @@ Imports:
     cowplot,
     formatters,
     ggplot2,
+    officer,
     rlistings,
     rtables,
     stats

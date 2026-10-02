@@ -70,6 +70,23 @@ column names.
 | `t_horizon_slide()` | The same metrics over several trailing windows, to separate short from long |
 | `render_stock_report()` | A whole deck for one trading code, written reading first |
 
+## Beyond price history
+
+Some of these need data the package does not fetch, and they say so rather than
+inventing it:
+
+| Function | Output | Data it needs |
+| --- | --- | --- |
+| `g_range_slide()` | Price against its own trailing high-low band, and where in it the last price sits | Prices |
+| `g_vol_term_slide()` | Realized volatility over several windows at once | Prices |
+| `t_option_slide()` | Implied volatility and Greeks for a sheet of option quotes | Option quotes (`STRIKE`, `TYPE`, `PRICE`, `TTE`) and spot |
+| `g_vol_premium_slide()` | Implied against realized volatility at matched tenors | Prices and option quotes |
+| `t_fundamentals_slide()` | Metrics across reporting periods, with the change | Financials you supply as `METRIC` / `PERIOD` / `VALUE` |
+
+`METHODS.md` records the formula behind every number, where it came from, and
+which parts of the `quantitative-trading` and `cb_teams_marketplace` plugins were
+adopted, which were dropped, and why.
+
 ## One-company report
 
 `t_horizon_slide()` and `render_stock_report()` answer "how does this look short
@@ -83,7 +100,9 @@ render_stock_report(eg_ohlc, "AIR.NZ", benchmark = "ANZ.NZ", "air_nz_report.pptx
 The reading is derived from the same metrics the rest of the deck shows, so it
 cannot drift from the numbers. Point it at your own history and change the
 trading code to report on a different company — `examples/report.R` is that
-workflow in three editable lines.
+workflow in a few editable lines. Handing `options` or `financials` to
+`render_stock_report()` adds the corresponding slides; leaving them `NULL`
+leaves them out.
 
 The benchmark is named as one of the trading codes already in the data, e.g.
 `t_risk_slide(eg_ohlc, benchmark = "ANZ.NZ")`. Portfolio weights are not

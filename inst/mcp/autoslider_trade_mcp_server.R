@@ -70,6 +70,10 @@ fn_list_outputs <- function() {
     "  rolling_risk   - g_rolling_risk_slide(): rolling volatility / Sharpe / VaR / drawdown",
     "  portfolio      - g_portfolio_risk_slide(): correlation heatmap + beta / info ratio",
     "  stock_report   - render_stock_report(): one full analysis deck for one company",
+    "  range_chart    - g_range_slide(): price inside its 52-week band",
+    "  vol_term       - g_vol_term_slide(): realized vol over 20/60/90/252 days",
+    "  option_table   - t_option_slide(): implied vol and Greeks (needs quotes)",
+    "  fundamentals   - t_fundamentals_slide(): metrics by period (needs metrics)",
     "",
     "Then call trade_generate_slides(outfile=...) to assemble a .pptx,",
     "and optionally pptx_to_pdf(path=...) to convert it.",
@@ -123,6 +127,34 @@ fn_generate_slides <- function(outfile, output_name) {
 fn_pptx_to_pdf <- function(path, output_dir) {
   out <- pptx_to_pdf(path, if (nzchar(output_dir)) output_dir else NULL)
   sprintf("PDF(s) written: %s", paste(out, collapse = ", "))
+}
+
+# The option and fundamentals outputs need data this package does not fetch, so
+# they take it as a path rather than a bundled example.
+fn_range <- function(data_path, symbol) {
+  df <- load_prices(data_path, symbol)
+  .state$outputs[["range"]] <- g_range_slide(df)
+  sprintf("Range figure built (%d rows). Call trade_generate_slides to render.", nrow(df))
+}
+
+fn_vol_term <- function(data_path, symbol) {
+  df <- load_prices(data_path, symbol)
+  .state$outputs[["vol_term"]] <- g_vol_term_slide(df)
+  sprintf("Volatility term structure built (%d rows). Call trade_generate_slides to render.", nrow(df))
+}
+
+fn_option_table <- function(data_path, spot) {
+  df <- readRDS(data_path)
+  stop_if(nrow(df) == 0L, sprintf("No option quotes in '%s'.", data_path))
+  .state$outputs[["options"]] <- t_option_slide(df, spot = spot)
+  sprintf("Option table built (%d quotes). Call trade_generate_slides to render.", nrow(df))
+}
+
+fn_fundamentals <- function(data_path) {
+  df <- readRDS(data_path)
+  stop_if(nrow(df) == 0L, sprintf("No metrics in '%s'.", data_path))
+  .state$outputs[["fundamentals"]] <- t_fundamentals_slide(df)
+  sprintf("Fundamentals table built (%d rows). Call trade_generate_slides to render.", nrow(df))
 }
 
 fn_stock_report <- function(symbol, data_path, benchmark, outfile) {
@@ -360,6 +392,62 @@ tools <- list(
         'Trading code already in the data to compare against, or "" for the heatmap alone.'
       ),
       window = type_number("Number of periods per rolling Beta window, e.g. 63.")
+    )
+  ),
+
+  tool(
+    fun = fn_range,
+    name = "range_chart",
+    description = paste(
+      "Build the figure placing the price inside its own trailing 52-week high-low",
+      "band, with the current position in that band (g_range_slide)."
+    ),
+    arguments = list(
+      data_path = type_string(
+        'Path to an .rds prices data frame, or "example" for bundled eg_ohlc.'
+      ),
+      symbol = type_string('Restrict to one trading code, or "" for all.')
+    )
+  ),
+
+  tool(
+    fun = fn_vol_term,
+    name = "vol_term_structure",
+    description = paste(
+      "Build realized volatility over 20, 60, 90 and 252-day windows side by side,",
+      "the shape an implied volatility term structure is quoted in (g_vol_term_slide)."
+    ),
+    arguments = list(
+      data_path = type_string(
+        'Path to an .rds prices data frame, or "example" for bundled eg_ohlc.'
+      ),
+      symbol = type_string('Restrict to one trading code, or "" for all.')
+    )
+  ),
+
+  tool(
+    fun = fn_option_table,
+    name = "option_table",
+    description = paste(
+      "Price a sheet of European option quotes and report implied volatility and",
+      "Greeks (t_option_slide). The quotes are not fetched: pass an .rds with",
+      "STRIKE, TYPE, PRICE and TTE columns, and the spot price."
+    ),
+    arguments = list(
+      data_path = type_string("Path to an .rds of option quotes (STRIKE/TYPE/PRICE/TTE)."),
+      spot = type_number("Spot price of the underlying.")
+    )
+  ),
+
+  tool(
+    fun = fn_fundamentals,
+    name = "fundamentals_table",
+    description = paste(
+      "Build the fundamentals or valuation trend table (t_fundamentals_slide).",
+      "Pass an .rds with METRIC, PERIOD and VALUE columns; nothing is fetched."
+    ),
+    arguments = list(
+      data_path = type_string("Path to an .rds of METRIC / PERIOD / VALUE rows.")
     )
   ),
 

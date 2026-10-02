@@ -9,12 +9,13 @@
 #' @importFrom assertthat assert_that has_name is.count is.flag is.number is.string
 #' @importFrom formatters var_labels
 #' @importFrom ggplot2 aes annotate coord_equal element_blank facet_wrap geom_area
-#'   geom_col geom_histogram geom_hline geom_line geom_rect geom_segment geom_text
-#'   geom_tile geom_vline ggplot labs scale_colour_manual scale_fill_gradient2
-#'   scale_fill_manual scale_linetype_manual theme theme_minimal
+#'   geom_col geom_histogram geom_hline geom_line geom_rect geom_ribbon geom_segment
+#'   geom_text geom_tile geom_vline ggplot labs position_dodge scale_colour_manual
+#'   scale_fill_gradient2 scale_fill_manual scale_linetype_manual theme theme_minimal
 #' @importFrom rlistings as_listing
-#' @importFrom rtables analyze basic_table build_table rcell split_cols_by
-#' @importFrom stats ave cor cov qnorm quantile sd setNames var
+#' @importFrom rtables analyze basic_table build_table keep_split_levels rcell
+#'   split_cols_by
+#' @importFrom stats ave cor cov dnorm pnorm qnorm quantile sd setNames var
 #' @importFrom utils tail
 NULL
 
@@ -31,5 +32,6 @@ utils::globalVariables(c(
   "OPEN", "HIGH", "LOW", "CLOSE", "VOLUME", "DIR",
   "UP", "MID", "DN", "VMA", "RSI", "DIF", "DEA", "HIST", "y", "series",
   "RET", "DD", "REGIME", "VOL", "SHARPE", "VAR", "MAXDD", "BETA", "IR",
-  "VAR1", "VAR2", "TYPE"
+  "VAR1", "VAR2", "TYPE",
+  "WINDOW", "TENOR", "SERIES", "HIGH", "LOW"
 ))

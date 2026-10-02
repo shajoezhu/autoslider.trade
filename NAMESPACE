@@ -4,13 +4,18 @@ export(g_candle_slide)
 export(g_drawdown_slide)
 export(g_equity_slide)
 export(g_portfolio_risk_slide)
+export(g_range_slide)
 export(g_return_dist_slide)
 export(g_rolling_risk_slide)
+export(g_vol_premium_slide)
+export(g_vol_term_slide)
 export(generate_slides)
 export(l_trades_slide)
 export(pptx_to_pdf)
 export(render_stock_report)
+export(t_fundamentals_slide)
 export(t_horizon_slide)
+export(t_option_slide)
 export(t_performance_slide)
 export(t_risk_slide)
 importFrom(assertthat,
@@ -35,12 +40,14 @@ importFrom(ggplot2,
   geom_hline,
   geom_line,
   geom_rect,
+  geom_ribbon,
   geom_segment,
   geom_text,
   geom_tile,
   geom_vline,
   ggplot,
   labs,
+  position_dodge,
   scale_colour_manual,
   scale_fill_gradient2,
   scale_fill_manual,
@@ -53,6 +60,7 @@ importFrom(rtables,
   analyze,
   basic_table,
   build_table,
+  keep_split_levels,
   rcell,
   split_cols_by
 )
@@ -60,6 +68,8 @@ importFrom(stats,
   ave,
   cor,
   cov,
+  dnorm,
+  pnorm,
   qnorm,
   quantile,
   sd,

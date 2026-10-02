@@ -91,6 +91,111 @@ test_that("render_stock_report writes one deck holding every slide", {
   expect_true(length(slides) > 5L)
 })
 
+test_that("render_stock_report adds the option and fundamentals slides when given", {
+  skip_if_not_installed("rsvg")
+  one <- eg_ohlc[eg_ohlc$SYMBOL == "AIR.NZ", ]
+  spot <- one$CLOSE[nrow(one)]
+  quotes <- data.frame(
+    STRIKE = c(spot, spot),
+    TYPE = c("call", "put"),
+    TTE = c(20 / 252, 20 / 252),
+    PRICE = c(
+      bs_price(spot, spot, 20 / 252, 0.35, 0.02, "call"),
+      bs_price(spot, spot, 20 / 252, 0.35, 0.02, "put")
+    )
+  )
+  fin <- data.frame(
+    METRIC = rep(c("Revenue (m)", "Operating margin (%)"), each = 2L),
+    PERIOD = rep(c("FY24", "FY25"), times = 2L),
+    VALUE = c(120, 135, 11.2, 12.8)
+  )
+
+  plain <- render_stock_report(one, "AIR.NZ", outfile = tempfile(fileext = ".pptx"))
+  full <- render_stock_report(
+    one, "AIR.NZ", options = quotes, financials = fin, outfile = tempfile(fileext = ".pptx")
+  )
+
+  count <- function(path) {
+    sum(grepl("^ppt/slides/slide[0-9]+\\.xml$", utils::unzip(path, list = TRUE)$Name))
+  }
+  # Two option slides and one fundamentals slide on top of the plain deck.
+  expect_true(count(full) > count(plain))
+})
+
+# --- figures on the slide -----------------------------------------------------
+
+png_dims <- function(path) {
+  raw <- readBin(path, "raw", n = 33L)
+  c(
+    width = sum(as.integer(raw[17:20]) * 256^(3:0)),
+    height = sum(as.integer(raw[21:24]) * 256^(3:0))
+  )
+}
+
+# Slide files do not necessarily come out in display order, so the order is read
+# from presentation.xml rather than from the file names.
+display_titles <- function(path) {
+  tmp <- file.path(tempdir(), basename(tempfile("deck")))
+  dir.create(tmp, showWarnings = FALSE)
+  utils::unzip(path, exdir = tmp)
+
+  pres <- paste(readLines(file.path(tmp, "ppt/presentation.xml")), collapse = "")
+  ids <- regmatches(pres, gregexpr('<p:sldId[^>]*r:id="[^"]+"', pres))[[1L]]
+  ids <- vapply(
+    regmatches(ids, gregexpr('r:id="[^"]+"', ids)),
+    function(x) sub('r:id="', "", sub('"$', "", x)), character(1L)
+  )
+  rels <- paste(readLines(file.path(tmp, "ppt/_rels/presentation.xml.rels")), collapse = "")
+  nodes <- regmatches(rels, gregexpr("<Relationship [^>]*/?>", rels))[[1L]]
+  by_id <- character(0)
+  for (n in nodes) {
+    id <- sub('Id="', "", sub('"$', "", regmatches(n, regexpr('Id="[^"]+"', n))))
+    target <- sub('Target="', "", sub('"$', "", regmatches(n, regexpr('Target="[^"]+"', n))))
+    by_id[id] <- target
+  }
+
+  vapply(seq_along(ids), function(k) {
+    x <- paste(readLines(file.path(tmp, "ppt", by_id[[ids[k]]])), collapse = "")
+    tt <- regmatches(x, gregexpr("<a:t>[^<]*</a:t>", x))[[1L]]
+    if (!length(tt)) "" else gsub("<a:t>|</a:t>", "", tt[1L])
+  }, character(1L))
+}
+
+media_names <- function(path) {
+  utils::unzip(path, list = TRUE)$Name
+}
+
+test_that("figure_png writes a raster of the size asked for", {
+  file <- figure_png(g_equity_slide(eg_prices), tempfile(fileext = ".png"), dpi = 150L)
+  expect_true(file.exists(file))
+  expect_equal(unname(png_dims(file)), c(9 * 150L, 5 * 150L))
+})
+
+test_that("the report rasterizes its figures so their labels survive", {
+  skip_if_not_installed("rsvg")
+  raster <- render_stock_report(eg_ohlc, "AIR.NZ", outfile = tempfile(fileext = ".pptx"))
+
+  media <- media_names(raster)
+  expect_true(sum(grepl("\\.png$", media)) >= 5L)
+  # No slide is left holding the vector figure PowerPoint cannot read.
+  expect_length(svg_slide_positions(raster), 0L)
+
+  expect_true(any(grepl("Price History", display_titles(raster), fixed = TRUE)))
+})
+
+test_that("the report keeps the figures where they belong and keeps the count", {
+  skip_if_not_installed("rsvg")
+  plain <- render_stock_report(
+    eg_ohlc, "AIR.NZ", fig_dpi = NA, outfile = tempfile(fileext = ".pptx")
+  )
+  raster <- render_stock_report(eg_ohlc, "AIR.NZ", outfile = tempfile(fileext = ".pptx"))
+
+  expect_equal(length(display_titles(plain)), length(display_titles(raster)))
+  expect_equal(display_titles(plain), display_titles(raster))
+  # fig_dpi = NA is the escape hatch: the vector figures stay.
+  expect_true(length(svg_slide_positions(plain)) > 0L)
+})
+
 test_that("render_stock_report reads prices from an .rds path", {
   skip_if_not_installed("rsvg")
   one <- eg_ohlc[eg_ohlc$SYMBOL == "AIR.NZ", ]
