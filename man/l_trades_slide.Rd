@@ -4,12 +4,15 @@
 \alias{l_trades_slide}
 \title{Trade listing}
 \usage{
-l_trades_slide(trades, symbol = code_col())
+l_trades_slide(trades, symbol = code_col(), title = "Trade Listing")
 }
 \arguments{
 \item{trades}{\code{data.frame} of trades}
 
 \item{symbol}{\code{character} Name of the trading code column}
+
+\item{title}{\code{character} Listing title. \code{generate_slides()} prints it above
+the listing, so it must not be empty.}
 }
 \value{
 A \code{listing_df} object, ready to be rendered with \code{generate_slides()}

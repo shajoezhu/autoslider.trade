@@ -6,14 +6,16 @@
 #'
 "_PACKAGE"
 
-#' @importFrom assertthat assert_that has_name is.count is.flag is.string
+#' @importFrom assertthat assert_that has_name is.count is.flag is.number is.string
 #' @importFrom formatters var_labels
-#' @importFrom ggplot2 aes annotate element_blank geom_col geom_hline geom_line
-#'   geom_rect geom_segment ggplot labs scale_colour_manual scale_fill_manual
-#'   scale_linetype_manual theme theme_minimal
+#' @importFrom ggplot2 aes annotate coord_equal element_blank facet_wrap geom_area
+#'   geom_col geom_histogram geom_hline geom_line geom_rect geom_segment geom_text
+#'   geom_tile geom_vline ggplot labs scale_colour_manual scale_fill_gradient2
+#'   scale_fill_manual scale_linetype_manual theme theme_minimal
 #' @importFrom rlistings as_listing
 #' @importFrom rtables analyze basic_table build_table rcell split_cols_by
-#' @importFrom stats ave setNames
+#' @importFrom stats ave cor cov qnorm quantile sd setNames var
+#' @importFrom utils tail
 NULL
 
 # `autoslider.trade` is a downstream package of `autoslider.core`: the outputs
@@ -27,5 +29,7 @@ autoslider.core::generate_slides
 utils::globalVariables(c(
   "SYMBOL", "DATE", "VALUE",
   "OPEN", "HIGH", "LOW", "CLOSE", "VOLUME", "DIR",
-  "UP", "MID", "DN", "VMA", "RSI", "DIF", "DEA", "HIST", "y", "series"
+  "UP", "MID", "DN", "VMA", "RSI", "DIF", "DEA", "HIST", "y", "series",
+  "RET", "DD", "REGIME", "VOL", "SHARPE", "VAR", "MAXDD", "BETA", "IR",
+  "VAR1", "VAR2", "TYPE"
 ))

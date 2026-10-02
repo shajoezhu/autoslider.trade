@@ -34,6 +34,14 @@ g_equity_slide(eg_prices)
 # A listing of executed trades
 l_trades_slide(eg_trades)
 
+# Risk analytics on a longer series
+t_risk_slide(eg_ohlc)
+t_risk_slide(eg_ohlc, benchmark = "ANZ.NZ")
+g_drawdown_slide(eg_ohlc)
+g_return_dist_slide(eg_ohlc)
+g_rolling_risk_slide(eg_ohlc)
+g_portfolio_risk_slide(eg_ohlc, benchmark = "ANZ.NZ")
+
 # Render any of the above to a slide deck
 autoslider.core::generate_slides(t_performance_slide(eg_prices), "performance.pptx")
 ```
@@ -44,3 +52,40 @@ arguments, but default to the trading code convention shared with
 
 - `SYMBOL` is the column holding the trading code. Override with
   `options(autoslider.trade.code_col = "ticker")`.
+
+## Risk analytics
+
+The outputs above describe what happened to the price. The risk outputs describe
+what it cost in risk terms. All of them are computed from prices rather than from
+a return series you have to prepare first, and all accept the same configurable
+column names.
+
+| Function | Output |
+| --- | --- |
+| `t_risk_slide()` | Return, volatility, VaR, CVaR, drawdown and the Sharpe/Sortino/Calmar/Omega ratios per instrument |
+| `g_drawdown_slide()` | Underwater plot per instrument |
+| `g_return_dist_slide()` | Return histogram with VaR and CVaR marked |
+| `g_rolling_risk_slide()` | Rolling volatility, Sharpe, VaR and maximum drawdown |
+| `g_portfolio_risk_slide()` | Correlation heatmap, rolling Beta and information ratio against a benchmark |
+| `t_horizon_slide()` | The same metrics over several trailing windows, to separate short from long |
+| `render_stock_report()` | A whole deck for one trading code, written reading first |
+
+## One-company report
+
+`t_horizon_slide()` and `render_stock_report()` answer "how does this look short
+term, and long term" for one instrument. The report puts a written reading of
+both first, then the evidence behind it:
+
+```r
+render_stock_report(eg_ohlc, "AIR.NZ", benchmark = "ANZ.NZ", "air_nz_report.pptx")
+```
+
+The reading is derived from the same metrics the rest of the deck shows, so it
+cannot drift from the numbers. Point it at your own history and change the
+trading code to report on a different company — `examples/report.R` is that
+workflow in three editable lines.
+
+The benchmark is named as one of the trading codes already in the data, e.g.
+`t_risk_slide(eg_ohlc, benchmark = "ANZ.NZ")`. Portfolio weights are not
+computed here: describing what the price did is this package's job, deciding what
+to hold is not.

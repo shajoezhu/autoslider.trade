@@ -63,6 +63,13 @@ fn_list_outputs <- function() {
     "  performance    - t_performance_slide(): per-instrument return / drawdown table",
     "  trades         - l_trades_slide(): trade listing",
     "  equity_curve   - g_equity_slide(): rebased price curve",
+    "Risk analytics (need a longer series than the 5-row eg_prices):",
+    "  risk_table     - t_risk_slide(): VaR / CVaR / drawdown / Sharpe ratios table",
+    "  drawdown       - g_drawdown_slide(): underwater plot per instrument",
+    "  ret_dist       - g_return_dist_slide(): return histogram with VaR / CVaR marked",
+    "  rolling_risk   - g_rolling_risk_slide(): rolling volatility / Sharpe / VaR / drawdown",
+    "  portfolio      - g_portfolio_risk_slide(): correlation heatmap + beta / info ratio",
+    "  stock_report   - render_stock_report(): one full analysis deck for one company",
     "",
     "Then call trade_generate_slides(outfile=...) to assemble a .pptx,",
     "and optionally pptx_to_pdf(path=...) to convert it.",
@@ -118,9 +125,82 @@ fn_pptx_to_pdf <- function(path, output_dir) {
   sprintf("PDF(s) written: %s", paste(out, collapse = ", "))
 }
 
+fn_stock_report <- function(symbol, data_path, benchmark, outfile) {
+  df <- load_df(data_path, "eg_ohlc")
+  stop_if(nrow(df) == 0L, sprintf("No rows in the data for '%s'.", data_path))
+  outfile <- normalizePath(outfile, mustWork = FALSE)
+  tryCatch(
+    render_stock_report(
+      df,
+      ticker = symbol,
+      benchmark = optional(benchmark),
+      outfile = outfile
+    ),
+    error = function(e) stop("Report error: ", e$message, call. = FALSE)
+  )
+  sprintf("Report for '%s' written to: %s", symbol, outfile)
+}
+
 fn_reset <- function() {
   .state$outputs <- NULL
   "Session state cleared."
+}
+
+# ---- risk analytics ---------------------------------------------------------
+# The risk outputs need a longer series than `eg_prices` has, so they fall back
+# to `eg_ohlc` and use its CLOSE column. `benchmark` travels over MCP as a
+# string, so an empty string stands for `NULL`.
+
+optional <- function(x) if (nzchar(x)) x else NULL
+
+load_prices <- function(data_path, symbol) {
+  df <- load_df(data_path, "eg_ohlc")
+  if (nzchar(symbol)) df <- df[df$SYMBOL == symbol, ]
+  stop_if(nrow(df) == 0L, sprintf("No rows for symbol '%s' in the data.", symbol))
+  df
+}
+
+fn_risk_table <- function(data_path, benchmark, symbol) {
+  df <- load_prices(data_path, symbol)
+  .state$outputs[["risk_table"]] <- t_risk_slide(df, benchmark = optional(benchmark))
+  sprintf("Risk summary built (%d rows). Call trade_generate_slides to render.", nrow(df))
+}
+
+fn_drawdown <- function(data_path, symbol) {
+  df <- load_prices(data_path, symbol)
+  .state$outputs[["drawdown"]] <- g_drawdown_slide(df)
+  sprintf("Drawdown figure built (%d rows). Call trade_generate_slides to render.", nrow(df))
+}
+
+fn_ret_dist <- function(data_path, conf, symbol) {
+  stop_if(!(conf > 0 && conf < 1), sprintf("conf must be in (0, 1), got %s.", conf))
+  df <- load_prices(data_path, symbol)
+  .state$outputs[["ret_dist"]] <- g_return_dist_slide(df, conf = conf)
+  sprintf("Return distribution built (%d rows). Call trade_generate_slides to render.", nrow(df))
+}
+
+fn_rolling_risk <- function(data_path, window, symbol) {
+  df <- load_prices(data_path, symbol)
+  .state$outputs[["rolling_risk"]] <- g_rolling_risk_slide(df, window = window)
+  sprintf(
+    "Rolling risk figure built (%d rows, window %d). Call trade_generate_slides to render.",
+    nrow(df), as.integer(window)
+  )
+}
+
+fn_portfolio <- function(data_path, benchmark, window) {
+  df <- load_prices(data_path, "")
+  stop_if(
+    nrow(df) < 2L || length(unique(df$SYMBOL)) < 2L,
+    "Portfolio risk needs prices for at least two trading codes."
+  )
+  .state$outputs[["portfolio"]] <- g_portfolio_risk_slide(
+    df, benchmark = optional(benchmark), window = window
+  )
+  sprintf(
+    "Portfolio risk figure built (%d rows, benchmark '%s'). Call trade_generate_slides to render.",
+    nrow(df), if (nzchar(benchmark)) benchmark else "none"
+  )
 }
 
 # ---- register tools ---------------------------------------------------------
@@ -198,18 +278,130 @@ tools <- list(
   ),
 
   tool(
+    fun = fn_risk_table,
+    name = "risk_table",
+    description = paste(
+      "Build the per-instrument risk summary table: return, volatility, VaR, CVaR,",
+      "drawdown and the Sharpe / Sortino / Calmar / Omega ratios (t_risk_slide).",
+      'Name a benchmark (e.g. "ANZ.NZ") to add Beta, tracking error and the',
+      "information ratio. Needs a long price series, so it defaults to eg_ohlc."
+    ),
+    arguments = list(
+      data_path = type_string(
+        'Path to an .rds prices data frame, or "example" for bundled eg_ohlc.'
+      ),
+      benchmark = type_string(
+        'Trading code already in the data to compare against, or "" for none.'
+      ),
+      symbol = type_string('Restrict to one trading code, or "" for all.')
+    )
+  ),
+
+  tool(
+    fun = fn_drawdown,
+    name = "drawdown_chart",
+    description = paste(
+      "Build the underwater plot of how far below its own running peak each",
+      "trading code sits over time (g_drawdown_slide)."
+    ),
+    arguments = list(
+      data_path = type_string(
+        'Path to an .rds prices data frame, or "example" for bundled eg_ohlc.'
+      ),
+      symbol = type_string('Restrict to one trading code, or "" for all.')
+    )
+  ),
+
+  tool(
+    fun = fn_ret_dist,
+    name = "return_distribution",
+    description = paste(
+      "Build a histogram of periodic returns per trading code with the mean, VaR",
+      "and CVaR marked (g_return_dist_slide)."
+    ),
+    arguments = list(
+      data_path = type_string(
+        'Path to an .rds prices data frame, or "example" for bundled eg_ohlc.'
+      ),
+      conf = type_number("Confidence level for VaR and CVaR, e.g. 0.95 or 0.99."),
+      symbol = type_string('Restrict to one trading code, or "" for all.')
+    )
+  ),
+
+  tool(
+    fun = fn_rolling_risk,
+    name = "rolling_risk",
+    description = paste(
+      "Build four stacked rolling panels: volatility, Sharpe ratio, VaR and",
+      "maximum drawdown over a trailing window (g_rolling_risk_slide)."
+    ),
+    arguments = list(
+      data_path = type_string(
+        'Path to an .rds prices data frame, or "example" for bundled eg_ohlc.'
+      ),
+      window = type_number("Number of periods per window, e.g. 63 for about a quarter."),
+      symbol = type_string('Restrict to one trading code, or "" for all.')
+    )
+  ),
+
+  tool(
+    fun = fn_portfolio,
+    name = "portfolio_risk",
+    description = paste(
+      "Build the return correlation heatmap of all trading codes (g_portfolio_risk_slide).",
+      'Name a benchmark (e.g. "ANZ.NZ") to add rolling Beta and information ratio',
+      "panels alongside it."
+    ),
+    arguments = list(
+      data_path = type_string(
+        'Path to an .rds prices data frame, or "example" for bundled eg_ohlc.'
+      ),
+      benchmark = type_string(
+        'Trading code already in the data to compare against, or "" for the heatmap alone.'
+      ),
+      window = type_number("Number of periods per rolling Beta window, e.g. 63.")
+    )
+  ),
+
+  tool(
+    fun = fn_stock_report,
+    name = "stock_report",
+    description = paste(
+      "Build one full analysis deck for a single trading code: a written reading",
+      "of the long and short term, the horizon table, price history, drawdown, the",
+      "risk summary, the return distribution, the candlestick chart and rolling",
+      "risk, plus a benchmark comparison when one is named (render_stock_report).",
+      "This is the tool to use when asked to analyse one company."
+    ),
+    arguments = list(
+      symbol = type_string('Trading code to report on, e.g. "AIR.NZ".'),
+      data_path = type_string(
+        'Path to an .rds prices data frame, or "example" for bundled eg_ohlc.'
+      ),
+      benchmark = type_string(
+        'Trading code already in the data to compare against, or "" for none.'
+      ),
+      outfile = type_string('Output .pptx path, e.g. "/tmp/air_nz_report.pptx".')
+    )
+  ),
+
+  tool(
     fun = fn_generate_slides,
     name = "trade_generate_slides",
     description = paste(
       "Render one built output to a PowerPoint (.pptx) file and return its",
       "absolute path. Call a render_* tool first, then name the output to",
-      'render (e.g. "candle", "performance", "trades", "equity").',
+      'render (e.g. "candle", "performance", "trades", "equity", "risk_table",',
+      '"drawdown", "ret_dist", "rolling_risk", "portfolio").',
       "One output per file; call again for each deck you want."
     ),
     arguments = list(
       outfile = type_string('Output .pptx path, e.g. "/tmp/trade_deck.pptx".'),
       output_name = type_string(
-        'Name of the built output to render: "candle", "performance", "trades" or "equity".'
+        paste(
+          'Name of the built output to render: "candle", "performance", "trades",',
+          '"equity", "risk_table", "drawdown", "ret_dist", "rolling_risk" or "portfolio".'
+        )
       )
     )
   ),
