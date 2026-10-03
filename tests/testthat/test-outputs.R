@@ -37,6 +37,16 @@ test_that("l_trades_slide rejects a missing column", {
   expect_error(l_trades_slide(trades), "does not have")
 })
 
+test_that("l_trades_slide carries a title, which generate_slides() needs", {
+  # A listing without a main title makes generate_slides() fail while splitting
+  # the title across lines, so the default title is load-bearing.
+  expect_equal(formatters::main_title(l_trades_slide(eg_trades)), "Trade Listing")
+  expect_equal(
+    formatters::main_title(l_trades_slide(eg_trades, title = "My Trades")),
+    "My Trades"
+  )
+})
+
 test_that("t_performance_slide returns a table over the three instruments", {
   out <- t_performance_slide(eg_prices)
   expect_true(inherits(out, "VTableTree"))

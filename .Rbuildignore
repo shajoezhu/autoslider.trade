@@ -6,7 +6,9 @@
 ^\.RData$
 ^LICENSE\.md$
 ^CODEBUDDY\.md$
+^\.codebuddy$
 ^data-raw$
 ^Rplots\.pdf$
 ^examples$
 ^\.github$
+^METHODS\.md$

@@ -29,9 +29,14 @@ canonical_ohlc <- function(prices, symbol, date, open, high, low, close, volume)
 #' @noRd
 sma <- function(x, n) {
   n <- as.integer(n)
+  L <- length(x)
+  out <- rep(NA_real_, L)
+  # Nothing to average until the window fits.
+  if (L < n) {
+    return(out)
+  }
   cs <- c(0, cumsum(x))
-  out <- rep(NA_real_, length(x))
-  i <- seq.int(n, length(x))
+  i <- seq.int(n, L)
   out[i] <- (cs[i + 1L] - cs[i - n + 1L]) / n
   out
 }
@@ -65,6 +70,9 @@ ema <- function(x, n) {
 bbands <- function(x, n = 20L, k = 2) {
   n <- as.integer(n)
   mid <- sma(x, n)
+  if (length(x) < n) {
+    return(list(mid = mid, up = mid, dn = mid))
+  }
   cs <- c(0, cumsum(x))
   css <- c(0, cumsum(x * x))
   sd <- rep(NA_real_, length(x))
@@ -87,6 +95,11 @@ rsi <- function(x, n = 14L) {
   n <- as.integer(n)
   L <- length(x)
   out <- rep(NA_real_, L)
+  # A series shorter than the window has no RSI at all; without this guard the
+  # loop below would count down instead of up and index past the end.
+  if (L <= n) {
+    return(out)
+  }
   d <- diff(x)
   for (t in (n + 1L):L) {
     w <- d[(t - n):(t - 1L)]

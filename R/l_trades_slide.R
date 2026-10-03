@@ -5,6 +5,8 @@
 #'
 #' @param trades `data.frame` of trades
 #' @param symbol `character` Name of the trading code column
+#' @param title `character` Listing title. `generate_slides()` prints it above
+#'   the listing, so it must not be empty.
 #'
 #' @return A `listing_df` object, ready to be rendered with `generate_slides()`
 #' @export
@@ -12,10 +14,10 @@
 #' @examples
 #' l_trades_slide(eg_trades)
 #'
-l_trades_slide <- function(trades, symbol = code_col()) {
+l_trades_slide <- function(trades, symbol = code_col(), title = "Trade Listing") {
   required <- c(symbol, "DATE", "SIDE", "QTY", "PRICE")
   assert_that(has_name(trades, required))
-  assert_that(is.string(symbol))
+  assert_that(is.string(symbol), is.string(title))
 
   d <- as.data.frame(trades[required])
   names(d)[names(d) == symbol] <- "SYMBOL"
@@ -33,5 +35,5 @@ l_trades_slide <- function(trades, symbol = code_col()) {
     NOTIONAL = "Notional"
   )
 
-  as_listing(d, key_cols = "SYMBOL", disp_cols = display)
+  as_listing(d, key_cols = "SYMBOL", disp_cols = display, main_title = title)
 }
