@@ -453,5 +453,11 @@ render_stock_report <- function(prices,
     )
   }
 
-  normalizePath(outfile)
+  # Return value stays a single path, so existing callers are unaffected, but the
+  # page titles ride along as an attribute: a caller driving this from an agent
+  # needs to know what ended up in the deck, and which pages were left out,
+  # without opening the file.
+  out <- normalizePath(outfile)
+  attr(out, "slides") <- vapply(slides, function(s) s$title, character(1L))
+  out
 }

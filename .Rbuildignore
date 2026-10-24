@@ -8,6 +8,8 @@
 ^CODEBUDDY\.md$
 ^\.codebuddy$
 ^data-raw$
+^data/ANZ_NZ\.rda$
+^data/ANZ_NZ\.rds$
 ^Rplots\.pdf$
 ^examples$
 ^\.github$

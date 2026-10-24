@@ -108,3 +108,42 @@ The benchmark is named as one of the trading codes already in the data, e.g.
 `t_risk_slide(eg_ohlc, benchmark = "ANZ.NZ")`. Portfolio weights are not
 computed here: describing what the price did is this package's job, deciding what
 to hold is not.
+
+## Driving it from an agent
+
+`inst/mcp/autoslider_trade_mcp_server.R` exposes the outputs above as MCP tools,
+so any MCP-compatible client (Claude Code, CodeBuddy, Cursor, Claude Desktop)
+can build decks conversationally. Register it in the client to point at this
+file:
+
+```json
+{
+  "mcpServers": {
+    "autoslider_trade": {
+      "command": "Rscript",
+      "args": ["/abs/path/to/autoslider.trade/inst/mcp/autoslider_trade_mcp_server.R"],
+      "type": "stdio"
+    }
+  }
+}
+```
+
+Two tools write to disk: `trade_generate_slides` and `stock_report`. Both take
+an `overwrite` argument that defaults to `FALSE`, so a path that already holds a
+file is refused rather than silently replaced — an agent chooses output paths as
+casually as any other argument, and a deck overwritten without a word is a deck
+lost.
+
+**Recommended: require approval for the two writing tools in your client.**
+
+The server cannot enforce this itself — approval lives in the harness, not in the
+tool — so it is a setting on your side:
+
+- Claude Code / CodeBuddy: keep the write tools off the allow list so each call
+  prompts. A `CODEBUDDY.md` or `CLAUDE.md` rule is guidance; permissions and
+  hooks are what actually enforce it.
+- Anything unattended: run it against a scratch directory, never a directory that
+  holds decks you care about.
+
+Everything else is read-only apart from the option and fundamentals tools, which
+only read the `.rds` path you hand them — no market data or quotes are fetched.
