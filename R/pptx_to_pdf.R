@@ -77,13 +77,18 @@ powerpoint_available <- function() {
   # Verify that the PowerPoint COM class is actually registered. On CI machines
   # PowerShell may be present but Microsoft Office is not installed, so
   # New-Object -ComObject PowerPoint.Application would fail with REGDB_E_CLASSNOTREG.
+  # The command has to be quoted: system2() splices arguments into a shell
+  # command line unquoted, and sh treats the parentheses in PowerShell syntax as
+  # a syntax error, which would read as "PowerPoint is not installed".
   status <- tryCatch(
     system2(
       ps,
       c(
         "-NoProfile", "-NonInteractive", "-ExecutionPolicy", "Bypass",
         "-Command",
-        "if ([System.Type]::GetTypeFromProgID('PowerPoint.Application')) { exit 0 } else { exit 1 }"
+        shQuote(
+          "if ([System.Type]::GetTypeFromProgID('PowerPoint.Application')) { exit 0 } else { exit 1 }"
+        )
       ),
       stdout = FALSE,
       stderr = FALSE

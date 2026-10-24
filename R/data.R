@@ -60,3 +60,40 @@
 #' }
 #' @source Synthetic data created for this package.
 "eg_ohlc"
+
+#' Example option quotes
+#'
+#' A small, self-consistent set of European option quotes on `AIA.NZ`, used by
+#' `t_option_slide()` and `g_vol_premium_slide()`. Option quotes cannot be
+#' derived from a price series and this package does not fetch them, so without
+#' an example the option outputs could never be tried.
+#'
+#' The prices are Black-Scholes at the realised volatility of the `AIA.NZ`
+#' series in [eg_ohlc], so the implied volatilities the tables back-solve come
+#' back to roughly that volatility rather than to arbitrary numbers.
+#'
+#' @format A data frame with 42 rows and 4 columns:
+#' \describe{
+#'   \item{STRIKE}{Strike price, `numeric`}
+#'   \item{TYPE}{`call` or `put`, `character`}
+#'   \item{PRICE}{Option price, `numeric`}
+#'   \item{TTE}{Time to expiry in years, one of 0.25, 0.5, 1, `numeric`}
+#' }
+#' @source Synthetic data created for this package.
+"eg_options"
+
+#' Example company fundamentals
+#'
+#' A metrics-by-period trend table for the shape `t_fundamentals_slide()`
+#' pivots. Fundamentals cannot be derived from prices and are not fetched, so
+#' this exists for the same reason as [eg_options]: to make the fundamentals
+#' output runnable.
+#'
+#' @format A data frame with 12 rows and 3 columns:
+#' \describe{
+#'   \item{METRIC}{Metric name, `character`}
+#'   \item{PERIOD}{Reporting period, one of FY2023, FY2024, FY2025, `character`}
+#'   \item{VALUE}{Metric value, `numeric`}
+#' }
+#' @source Synthetic data created for this package.
+"eg_financials"
